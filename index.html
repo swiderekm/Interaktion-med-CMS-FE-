@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookDucks - Din bokhandel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h2>🦆 BookDucks</h2>
+            </div>
+            
+            <div class="nav-links">
+                <a href="index.html" class="active">Hem</a>
+            </div>
+
+            <div class="auth-buttons">
+                <div id="guest-nav">
+                    <a href="login.html" class="btn btn-secondary">Logga in</a>
+                    <a href="register.html" class="btn btn-primary">Registrera</a>
+                </div>
+
+                <div id="user-nav" class="hidden">
+                    <span id="welcome-user" class="welcome-text"></span>
+                    <a href="profile.html" class="btn btn-secondary">Profil</a>
+                    <button id="logout-btn" class="btn btn-danger">Logga ut</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="login-overlay" class="login-overlay">
+        <div class="overlay-content">
+            <span class="status-icon">✅</span>
+            <span id="overlay-text">Inloggad</span>
+        </div>
+    </div>
+
+    <header class="hero">
+        <div class="container">
+            <h1>Välkommen till BookDucks</h1>
+            <p>Upptäck tusentals böcker – spara, betygsätt och bygg din läslista</p>
+            <a href="#books" class="btn btn-primary btn-large">Bläddra bland böcker</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="books-section">
+            <div class="section-header">
+                <h2>Alla böcker</h2>
+                <div class="filters">
+                    <input type="text" id="search-input" placeholder="Sök på titel eller författare...">
+                    <select id="sort-select">
+                        <option value="title">Sortera efter titel (A-Ö)</option>
+                        <option value="author">Sortera efter författare (A-Ö)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="books-grid" class="books-grid">
+                <div class="loading">Laddar böcker...</div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 BookDucks</p>
+        </div>
+    </footer>
+
+    <script src="js/account.js"></script>
+</body>
+</html>
