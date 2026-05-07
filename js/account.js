@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:1337/api";
+const apiLogin = "http://localhost:1337/api";
 
 function saveAuth(data) {
     localStorage.setItem("jwt", data.jwt);
@@ -21,24 +21,31 @@ function isLoggedIn() {
 function logout() {
     localStorage.removeItem("jwt");
     localStorage.removeItem("user");
+
+    sessionStorage.removeItem("loginOverlayShown");
+
     window.location.href = "index.html";
 }
 
 function showLoginOverlay() {
+    if (sessionStorage.getItem("loginOverlayShown")) return;
+
     const overlay = document.getElementById("login-overlay");
     const overlayText = document.getElementById("overlay-text");
-    
+
     if (!overlay || !overlayText) return;
 
     const user = getCurrentUser();
-    const displayName = user ? (user.username || user.email || "Användare") : "Användare";
+    const displayName = user?.username || user?.email || "Användare";
 
     overlayText.textContent = `Inloggad som ${displayName}`;
     overlay.classList.add("show");
 
+    sessionStorage.setItem("loginOverlayShown", "true");
+
     setTimeout(() => {
         overlay.classList.remove("show");
-    }, 4000);
+    }, 1500);
 }
 
 function updateNavbar() {
@@ -50,60 +57,73 @@ function updateNavbar() {
 
     if (isLoggedIn()) {
         const user = getCurrentUser();
-        
-        if (guestNav) guestNav.classList.add("hidden");
-        if (userNav) userNav.classList.remove("hidden");
-        
+
+        guestNav?.classList.add("hidden");
+        userNav?.classList.remove("hidden");
+
         if (welcomeUser && user) {
             welcomeUser.textContent = `Hej, ${user.username || user.email}!`;
         }
 
         showLoginOverlay();
     } else {
-        if (guestNav) guestNav.classList.remove("hidden");
-        if (userNav) userNav.classList.add("hidden");
+        guestNav?.classList.remove("hidden");
+        userNav?.classList.add("hidden");
     }
 }
 
 async function login(identifier, password) {
     try {
-        const res = await fetch(`${API_URL}/auth/local`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ identifier, password })
+        const { data } = await axios.post(`${apiLogin}/auth/local`, {
+            identifier,
+            password
         });
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error?.message || "Inloggning misslyckades");
-
         saveAuth(data);
-        showMessage("login-message", "Inloggning lyckades! 🎉", "success");
-        setTimeout(() => window.location.href = "index.html", 1200);
+
+        setTimeout(() => {
+            window.location.href = "index.html";
+        }, 1200);
+
     } catch (err) {
-        showMessage("login-message", err.message, "error");
+        showMessage(
+            "login-message",
+            err.response?.data?.error?.message || "Inloggning misslyckades",
+            "error"
+        );
     }
 }
 
 async function register(username, email, password) {
     try {
-        const res = await fetch(`${API_URL}/auth/local/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, email, password })
+        await axios.post(`${apiLogin}/auth/local/register`, {
+            username,
+            email,
+            password
         });
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error?.message || "Registrering misslyckades");
+        showMessage(
+            "register-message",
+            "Konto skapat! Logga in nu.",
+            "success"
+        );
 
-        showMessage("register-message", "Konto skapat! Logga in nu.", "success");
-        setTimeout(() => window.location.href = "login.html", 1800);
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 1800);
+
     } catch (err) {
-        showMessage("register-message", err.message, "error");
+        showMessage(
+            "register-message",
+            err.response?.data?.error?.message || "Registrering misslyckades",
+            "error"
+        );
     }
 }
 
 function showMessage(elementId, text, type) {
     const el = document.getElementById(elementId);
+
     if (el) {
         el.textContent = text;
         el.className = `message ${type}`;
@@ -113,29 +133,30 @@ function showMessage(elementId, text, type) {
 document.addEventListener("DOMContentLoaded", () => {
     updateNavbar();
 
-    const logoutBtn = document.getElementById("logout-btn");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", logout);
-    }
+    document
+        .getElementById("logout-btn")
+        ?.addEventListener("click", logout);
 
-    const loginForm = document.getElementById("login-form");
-    if (loginForm) {
-        loginForm.addEventListener("submit", (e) => {
+    document
+        .getElementById("login-form")
+        ?.addEventListener("submit", (e) => {
             e.preventDefault();
-            const identifier = document.getElementById("identifier").value.trim();
-            const password = document.getElementById("password").value;
-            login(identifier, password);
-        });
-    }
 
-    const registerForm = document.getElementById("register-form");
-    if (registerForm) {
-        registerForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const username = document.getElementById("username").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value;
-            register(username, email, password);
+            login(
+                document.getElementById("identifier").value.trim(),
+                document.getElementById("password").value
+            );
         });
-    }
+
+    document
+        .getElementById("register-form")
+        ?.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            register(
+                document.getElementById("username").value.trim(),
+                document.getElementById("email").value.trim(),
+                document.getElementById("password").value
+            );
+        });
 });

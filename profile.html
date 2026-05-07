@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - BookDucks</title>
+    <script src="https://kit.fontawesome.com/bc3658d4a6.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="left-nav">
+                <div class="logo">
+                    <h2>🦆 BookDucks</h2>
+                </div>
+                
+                <div class="nav-links">
+                    <a href="index.html">
+                        <i class="fa-solid fa-house"></i> Hem
+                    </a>
+                </div>
+            </div>
+
+            <div class="auth-buttons">
+                <div id="user-nav">
+                    <span id="welcome-user" class="welcome-text">Hej, Mikolaj!</span>
+                    <a href="profile.html" class="btn btn-secondary">
+                        <i class="fa-solid fa-user"></i> Profil
+                    </a>
+                    <button id="logout-btn" class="btn btn-danger">Logga ut</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                👤
+            </div>
+            <div>
+                <h1 id="profile-name">Mikolaj</h1>
+                <p id="profile-email">mikolaj@example.com</p>
+            </div>
+        </div>
+
+        <div class="profile-content">
+            <div class="profile-card">
+                <h2>Min Läslista</h2>
+                <p>Du har <strong>12</strong> böcker i din läslista.</p>
+                <a href="#" class="btn btn-primary">Visa alla böcker</a>
+            </div>
+
+            <div class="profile-card">
+                <h2>Lästa Böcker</h2>
+                <p>Du har läst <strong>47</strong> böcker hittills.</p>
+                <a href="#" class="btn btn-secondary">Se historik</a>
+            </div>
+
+            <div class="profile-card">
+                <h2>Inställningar</h2>
+                <div class="profile-options">
+                    <a href="#" class="profile-option">Ändra lösenord</a>
+                    <a href="#" class="profile-option">Uppdatera profil</a>
+                    <a href="#" class="profile-option">Meddelanden</a>
+                    <a href="#" class="profile-option">Sekretess</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 BookDucks</p>
+        </div>
+    </footer>
+
+    <script src="js/account.js"></script>
+</body>
+</html>

@@ -4,17 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BookDucks - Din bokhandel</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://kit.fontawesome.com/bc3658d4a6.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
-            <div class="logo">
-                <h2>🦆 BookDucks</h2>
-            </div>
-            
-            <div class="nav-links">
-                <a href="index.html" class="active">Hem</a>
+            <div class="left-nav">
+                <div class="logo">
+                    <h2>🦆 BookDucks</h2>
+                </div>
+                
+                <div class="nav-links">
+                    <a href="index.html" class="active">
+                        <i class="fa-solid fa-house"></i>
+                    </a>
+                </div>
             </div>
 
             <div class="auth-buttons">
@@ -24,8 +30,10 @@
                 </div>
 
                 <div id="user-nav" class="hidden">
-                    <span id="welcome-user" class="welcome-text"></span>
-                    <a href="profile.html" class="btn btn-secondary">Profil</a>
+                    <span id="welcome-user" class="welcome-text">Hej, Mikolaj!</span>
+                    <a href="profile.html" class="btn btn-secondary">
+                        <i class="fa-solid fa-user"></i> Profil
+                    </a>
                     <button id="logout-btn" class="btn btn-danger">Logga ut</button>
                 </div>
             </div>
@@ -34,7 +42,6 @@
 
     <div id="login-overlay" class="login-overlay">
         <div class="overlay-content">
-            <span class="status-icon">✅</span>
             <span id="overlay-text">Inloggad</span>
         </div>
     </div>
@@ -73,5 +80,6 @@
     </footer>
 
     <script src="js/account.js"></script>
+    <script src="js/index.js"></script>
 </body>
 </html>
