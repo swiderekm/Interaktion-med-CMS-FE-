@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://kit.fontawesome.com/bc3658d4a6.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="style.css">
+    <script src="js/theme.js" defer></script>
 </head>
 <body>
     <nav class="navbar">
@@ -78,6 +79,27 @@
             <p>&copy; 2026 BookDucks</p>
         </div>
     </footer>
+
+        <div id="book-modal" class="book-modal hidden">
+        <div class="modal-content">
+            <span id="close-modal" class="close-modal">&times;</span>
+
+            <div class="modal-body">
+                <img id="modal-image" src="" alt="">
+
+                <div class="modal-info">
+                    <h2 id="modal-title"></h2>
+                    <p id="modal-autho"></p>
+                    <p id="modal-pages"></p>
+                    <p id="modal-date"></p>
+
+                    <button id="save-book-btn" class="btn btn-primary">
+                        Spara till "Att läsa"
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="js/account.js"></script>
     <script src="js/index.js"></script>

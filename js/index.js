@@ -3,115 +3,206 @@ const apiBooks = "http://localhost:1337/api/books?populate=*";
 const booksGrid = document.getElementById("books-grid");
 const searchInput = document.getElementById("search-input");
 const sortSelect = document.getElementById("sort-select");
+const modal = document.getElementById("book-modal");
+const closeModalBtn = document.getElementById("close-modal");
+
+const modalTitle = document.getElementById("modal-title");
+const modalAutho = document.getElementById("modal-autho");
+const modalPages = document.getElementById("modal-pages");
+const modalDate = document.getElementById("modal-date");
+const modalImage = document.getElementById("modal-image");
+
+const saveBtn = document.getElementById("save-book-btn");
 
 let allBooks = [];
-
 
 async function fetchBooks() {
     try {
         const response = await axios.get(apiBooks);
-
         allBooks = response.data.data;
-
         renderBooks(allBooks);
-
     } catch (error) {
         console.error("Error fetching books:", error);
-
-        booksGrid.innerHTML = `
-            <p class="error-message">
-                Kunde inte hämta böcker.
-            </p>
-        `;
+        if (booksGrid) {
+            booksGrid.innerHTML = `<p>Kunde inte hämta böcker.</p>`;
+        }
     }
 }
 
 function renderBooks(books) {
-
-    if (books.length === 0) {
-        booksGrid.innerHTML = `
-            <p>Inga böcker hittades.</p>
-        `;
-        return;
-    }
+    if (!booksGrid) return;
 
     booksGrid.innerHTML = "";
 
     books.forEach(book => {
+        const attr = book.attributes || book;
 
-        const title = book.title;
-        const author = book.author;
-        const pages = book.pages;
-        const publishedDate = book.publishedDate;
+        const title = attr.title || "Ingen titel";
+        const autho = attr.autho || "Okänd författare";
+        const pages = attr.pages || "-";
+        const publishedDate = attr.publishedDate
+            ? new Date(attr.publishedDate).toLocaleDateString("sv-SE")
+            : "-";
 
-        let coverUrl = "";
+        let coverUrl = "https://placehold.co/300x450?text=No+Image";
 
-        if (book.cover && book.cover.url) {
-            coverUrl = `http://localhost:1337${book.cover.url}`;
-        } else {
-            coverUrl = "https://placehold.co/300x450?text=No+Image";
+        const cover =
+            book?.attributes?.cover ||
+            book?.cover ||
+            null;
+
+        if (cover?.data?.attributes?.url) {
+            coverUrl = `http://localhost:1337${cover.data.attributes.url}`;
+        }
+        else if (cover?.attributes?.url) {
+            coverUrl = `http://localhost:1337${cover.attributes.url}`;
+        }
+        else if (cover?.url) {
+            coverUrl = `http://localhost:1337${cover.url}`;
         }
 
-        const bookCard = document.createElement("div");
-        bookCard.classList.add("book-card");
+        const card = document.createElement("div");
+        card.classList.add("book-card");
 
-        bookCard.innerHTML = `
+        card.innerHTML = `
             <div class="book-image">
                 <img src="${coverUrl}" alt="${title}">
             </div>
-
             <div class="book-content">
                 <h3>${title}</h3>
-
-                <p><strong>Författare:</strong> ${author}</p>
-
-                <p><strong>Sidor:</strong> ${pages}</p>
-
-                <p><strong>Utgiven:</strong> ${publishedDate}</p>
+                <p>${autho}</p>
+                <p>${pages} pages</p>
+                <p>${publishedDate}</p>
             </div>
         `;
 
-        booksGrid.appendChild(bookCard);
+        booksGrid.appendChild(card);
+
+        card.addEventListener("click", () => {
+            openBookModal(book);
+        });
     });
 }
 
-searchInput.addEventListener("input", () => {
+if (booksGrid) {
+    fetchBooks();
 
-    const searchValue = searchInput.value.toLowerCase();
-
-    const filteredBooks = allBooks.filter(book => {
-
-        return (
-            book.title.toLowerCase().includes(searchValue) ||
-            book.author.toLowerCase().includes(searchValue)
-        );
+    closeModalBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
     });
 
-    sortAndRender(filteredBooks);
-});
+    window.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.classList.add("hidden");
+        }
+    });
 
-sortSelect.addEventListener("change", () => {
-    sortAndRender([...allBooks]);
-});
+    searchInput?.addEventListener("input", () => {
+        const value = searchInput.value.toLowerCase();
 
-function sortAndRender(books) {
+        const filtered = allBooks.filter(b => {
+            const a = b.attributes || b;
+            return (
+                (a.title || "").toLowerCase().includes(value) ||
+                (a.autho || "").toLowerCase().includes(value)
+            );
+        });
 
-    const sortValue = sortSelect.value;
+        renderBooks(filtered);
+    });
 
-    if (sortValue === "title") {
+    sortSelect?.addEventListener("change", () => {
+        const sorted = [...allBooks];
 
-        books.sort((a, b) =>
-            a.title.localeCompare(b.title)
-        );
+        sorted.sort((a, b) => {
+            const A = (a.attributes?.title || "").toLowerCase();
+            const B = (b.attributes?.title || "").toLowerCase();
+            return A.localeCompare(B);
+        });
 
-    } else if (sortValue === "author") {
+        renderBooks(sorted);
+    });
+}
 
-        books.sort((a, b) =>
-            a.author.localeCompare(b.author)
-        );
+function openBookModal(book) {
+    const attr = book.attributes || book;
+
+    const title = attr.title || "Ingen titel";
+    const autho = attr.autho || "Okänd författare";
+    const pages = attr.pages || "-";
+    const date = attr.publishedDate
+        ? new Date(attr.publishedDate).toLocaleDateString("sv-SE")
+        : "-";
+
+    let coverUrl = "https://placehold.co/300x450?text=No+Image";
+
+    const cover =
+        book?.attributes?.cover ||
+        book?.cover ||
+        null;
+
+    if (cover?.data?.attributes?.url) {
+        coverUrl = `http://localhost:1337${cover.data.attributes.url}`;
+    } else if (cover?.attributes?.url) {
+        coverUrl = `http://localhost:1337${cover.attributes.url}`;
+    } else if (cover?.url) {
+        coverUrl = `http://localhost:1337${cover.url}`;
     }
 
-    renderBooks(books);
+    modalTitle.textContent = title;
+    modalAutho.textContent = `Författare: ${autho}`;
+    modalPages.textContent = `Sidor: ${pages}`;
+    modalDate.textContent = `Utgiven: ${date}`;
+    modalImage.src = coverUrl;
+
+    saveBtn.onclick = () => {
+        saveBookToReadList(book.id);
+    };
+
+    modal.classList.remove("hidden");
 }
 
-fetchBooks();
+async function saveBookToReadList(bookId) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        alert("Du måste vara inloggad");
+        return;
+    }
+
+    try {
+        const userRes = await axios.get(
+            "http://localhost:1337/api/users/me?populate=readList",
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        const user = userRes.data;
+        const currentList = user.readList.map(b => b.id);
+
+        if (!currentList.includes(bookId)) {
+            currentList.push(bookId);
+        }
+
+        await axios.put(
+            `http://localhost:1337/api/users/${user.id}`,
+            {
+                readList: currentList
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        alert("Boken sparad!");
+
+    } catch (err) {
+        console.error(err);
+        alert("Kunde inte spara bok");
+    }
+}
