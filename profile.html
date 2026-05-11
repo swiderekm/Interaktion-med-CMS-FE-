@@ -43,32 +43,24 @@
                 👤
             </div>
             <div>
-                <h1 id="profile-name">Mikolaj</h1>
-                <p id="profile-email">mikolaj@example.com</p>
+                <h1 id="profile-name">USER</h1>
+                <p id="profile-email">USER</p>
             </div>
         </div>
 
         <div class="profile-content">
+
             <div class="profile-card">
                 <h2>Min Läslista</h2>
-                <p>Du har <strong>12</strong> böcker i din läslista.</p>
-                <a href="#" class="btn btn-primary">Visa alla böcker</a>
-            </div>
+                <p>Du har <strong id="book-count">0</strong> böcker i din läslista.</p>
 
-            <div class="profile-card">
-                <h2>Lästa Böcker</h2>
-                <p>Du har läst <strong>47</strong> böcker hittills.</p>
-                <a href="#" class="btn btn-secondary">Se historik</a>
-            </div>
-
-            <div class="profile-card">
-                <h2>Inställningar</h2>
-                <div class="profile-options">
-                    <a href="#" class="profile-option">Ändra lösenord</a>
-                    <a href="#" class="profile-option">Uppdatera profil</a>
-                    <a href="#" class="profile-option">Meddelanden</a>
-                    <a href="#" class="profile-option">Sekretess</a>
+                <div class="sort-controls">
+                    <span>Sortera efter:</span>
+                    <button class="btn btn-sort active" data-sort="title">Titel</button>
+                    <button class="btn btn-sort" data-sort="author">Författare</button>
                 </div>
+
+                <div id="readlist-container" class="books-grid"></div>
             </div>
         </div>
     </main>
@@ -80,6 +72,7 @@
     </footer>
 
     <script src="js/account.js"></script>
-    <script src="js/index.js"></script>
+    <!-- <script src="js/index.js"></script> -->
+    <script src="js/profile.js"></script>
 </body>
 </html>
