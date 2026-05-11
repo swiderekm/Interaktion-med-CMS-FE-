@@ -1,72 +1,48 @@
-const apiLink = "http://localhost:1337/api";
+const API = "http://localhost:1337/api";
 
-const profileName = document.getElementById("profile-name");
-const profileEmail = document.getElementById("profile-email");
+const profileName      = document.getElementById("profile-name");
+const profileEmail     = document.getElementById("profile-email");
 const readListContainer = document.getElementById("readlist-container");
-const bookCount = document.getElementById("book-count");
+const bookCount        = document.getElementById("book-count");
 
-let allBooks = [];
+let allBooks    = [];
 let currentSort = "title";
 
-async function loadProfile() {
-    const token = localStorage.getItem("jwt");
-
-    if (!token) {
-        window.location.href = "login.html";
-        return;
-    }
-
-    try {
-        const res = await axios.get(
-            `${apiLink}/users/me?populate[readList][populate]=cover`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        );
-
-        const user = res.data;
-
-        profileName.textContent = user.username || "Användare";
-        profileEmail.textContent = user.email;
-
-        allBooks = user.readList || [];
-
-        renderReadList(getSortedBooks());
-
-        if (bookCount) {
-            bookCount.textContent = allBooks.length;
-        }
-
-    } catch (err) {
-        console.error("Profile error:", err);
-    }
+function getToken() {
+    return localStorage.getItem("jwt");
 }
 
-function getSortedBooks() {
-    return [...allBooks].sort((a, b) => {
-        const attrA = a.attributes || a;
-        const attrB = b.attributes || b;
+function getAttr(book) {
+    return book.attributes || book;
+}
 
-        if (currentSort === "title") {
-            const titleA = (attrA.title || "").toLowerCase();
-            const titleB = (attrB.title || "").toLowerCase();
-            return titleA.localeCompare(titleB, "sv");
-        } else if (currentSort === "author") {
-            const authorA = (attrA.autho || "").toLowerCase();
-            const authorB = (attrB.autho || "").toLowerCase();
-            return authorA.localeCompare(authorB, "sv");
-        }
+function getCoverUrl(book) {
+    const cover = book?.attributes?.cover ?? book?.cover ?? null;
+    const url =
+        cover?.data?.attributes?.url ??
+        cover?.attributes?.url ??
+        cover?.url ??
+        null;
+    return url
+        ? `http://localhost:1337${url}`
+        : "https://placehold.co/80x115?text=No+Cover";
+}
 
-        return 0;
+function sortBooks(books) {
+    return [...books].sort((a, b) => {
+        const attrA = getAttr(a);
+        const attrB = getAttr(b);
+        const key   = currentSort === "author" ? "autho" : "title";
+        const valA  = (attrA[key] ?? "").toLowerCase();
+        const valB  = (attrB[key] ?? "").toLowerCase();
+        return valA.localeCompare(valB, "sv");
     });
 }
 
 function renderReadList(books) {
     if (!readListContainer) return;
 
-    if (books.length === 0) {
+    if (!books.length) {
         readListContainer.innerHTML = "<p>Inga sparade böcker.</p>";
         return;
     }
@@ -74,94 +50,89 @@ function renderReadList(books) {
     readListContainer.innerHTML = "";
 
     books.forEach(book => {
-        const attr = book.attributes || book;
+        const attr    = getAttr(book);
+        const title   = attr.title ?? "Ingen titel";
+        const author  = attr.autho ?? "Okänd";
+        const cover   = getCoverUrl(book);
 
-        const title = attr.title || "Ingen titel";
-        const autho = attr.autho || "Okänd";
-
-        let coverUrl = "https://placehold.co/100x150?text=No+Image";
-
-        const cover =
-            book?.attributes?.cover ||
-            book?.cover ||
-            null;
-
-        if (cover?.data?.attributes?.url) {
-            coverUrl = `http://localhost:1337${cover.data.attributes.url}`;
-        }
-        else if (cover?.attributes?.url) {
-            coverUrl = `http://localhost:1337${cover.attributes.url}`;
-        }
-        else if (cover?.url) {
-            coverUrl = `http://localhost:1337${cover.url}`;
-        }
-
-        const div = document.createElement("div");
-        div.classList.add("readlist-item");
-
-        div.innerHTML = `
-            <img src="${coverUrl}" alt="${title}" style="width:80px; border-radius:6px;">
-
-            <p><strong>${title}</strong> – ${autho}</p>
-
-            <button class="btn btn-danger">Ta bort</button>
+        const item = document.createElement("div");
+        item.className = "readlist-item";
+        item.innerHTML = `
+            <img src="${cover}" alt="${title}" loading="lazy">
+            <div class="readlist-item-info">
+                <strong>${title}</strong>
+                <span>${author}</span>
+            </div>
+            <button class="btn btn-danger" aria-label="Ta bort ${title}">Ta bort</button>
         `;
 
-        div.querySelector("button").onclick = () => {
-            removeBookFromReadList(book.id);
-        };
+        item.querySelector("button").addEventListener("click", () => {
+            removeFromReadList(book.id);
+        });
 
-        readListContainer.appendChild(div);
+        readListContainer.appendChild(item);
     });
 }
 
-async function removeBookFromReadList(bookId) {
-    const token = localStorage.getItem("jwt");
+async function loadProfile() {
+    const token = getToken();
+    if (!token) {
+        window.location.href = "login.html";
+        return;
+    }
 
+    try {
+        const { data: user } = await axios.get(
+            `${API}/users/me?populate[readList][populate]=cover`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (profileName)  profileName.textContent  = user.username || "Användare";
+        if (profileEmail) profileEmail.textContent = user.email;
+
+        allBooks = user.readList ?? [];
+        if (bookCount) bookCount.textContent = allBooks.length;
+
+        renderReadList(sortBooks(allBooks));
+
+    } catch (err) {
+        console.error("Kunde inte ladda profil:", err);
+    }
+}
+
+async function removeFromReadList(bookId) {
+    const token = getToken();
     if (!token) return;
 
     try {
-        const res = await axios.get(
-            `${apiLink}/users/me?populate[readList][populate]=cover`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
+        const { data: user } = await axios.get(
+            `${API}/users/me?populate[readList][populate]=cover`,
+            { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        const user = res.data;
-
-        const currentList = (user.readList || []).map(b => b.id);
-
-        const updatedList = currentList.filter(id => id !== bookId);
+        const updatedList = (user.readList ?? [])
+            .map(b => b.id)
+            .filter(id => id !== bookId);
 
         await axios.put(
-            `${apiLink}/users/${user.id}`,
-            {
-                readList: updatedList
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
+            `${API}/users/${user.id}`,
+            { readList: updatedList },
+            { headers: { Authorization: `Bearer ${token}` } }
         );
 
         loadProfile();
 
     } catch (err) {
-        console.error("Delete error:", err);
+        console.error("Kunde inte ta bort bok:", err);
     }
 }
 
-// Sort button logic
 document.querySelectorAll(".btn-sort").forEach(btn => {
     btn.addEventListener("click", () => {
         document.querySelectorAll(".btn-sort").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         currentSort = btn.dataset.sort;
-        renderReadList(getSortedBooks());
+        renderReadList(sortBooks(allBooks));
     });
 });
 

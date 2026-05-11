@@ -171,7 +171,6 @@ async function saveBookToReadList(bookId) {
     }
 
     try {
-        // ✅ GET user WITH readList
         const userRes = await axios.get(
             "http://localhost:1337/api/users/me?populate=readList",
             {
@@ -183,15 +182,12 @@ async function saveBookToReadList(bookId) {
 
         const user = userRes.data;
 
-        // ✅ SAFE list
         const currentList = (user.readList || []).map(b => b.id);
 
-        // ✅ Avoid duplicates
         if (!currentList.includes(bookId)) {
             currentList.push(bookId);
         }
 
-        // ✅ UPDATE user
         await axios.put(
             `http://localhost:1337/api/users/${user.id}`,
             {
