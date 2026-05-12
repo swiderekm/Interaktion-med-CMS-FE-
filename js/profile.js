@@ -1,4 +1,4 @@
-const API = "http://localhost:1337/api";
+const apiProfile = "http://localhost:1337/apiProfile";
 
 const profileName      = document.getElementById("profile-name");
 const profileEmail     = document.getElementById("profile-email");
@@ -83,7 +83,7 @@ async function loadProfile() {
 
     try {
         const { data: user } = await axios.get(
-            `${API}/users/me?populate[readList][populate]=cover`,
+            `${apiProfile}/users/me?populate[readList][populate]=cover`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -106,7 +106,7 @@ async function removeFromReadList(bookId) {
 
     try {
         const { data: user } = await axios.get(
-            `${API}/users/me?populate[readList][populate]=cover`,
+            `${apiProfile}/users/me?populate[readList][populate]=cover`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -115,7 +115,7 @@ async function removeFromReadList(bookId) {
             .filter(id => id !== bookId);
 
         await axios.put(
-            `${API}/users/${user.id}`,
+            `${apiProfile}/users/${user.id}`,
             { readList: updatedList },
             { headers: { Authorization: `Bearer ${token}` } }
         );
