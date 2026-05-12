@@ -1,4 +1,4 @@
-const apiProfile = "http://localhost:1337/apiProfile";
+const apiProfile = "http://localhost:1337/api";
 
 const profileName      = document.getElementById("profile-name");
 const profileEmail     = document.getElementById("profile-email");
